@@ -1,15 +1,15 @@
+import React from 'react';
 import { cn } from '@/lib/utils';
 
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+export function Skeleton({ className = '', ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('animate-pulse rounded-md bg-muted', className)}
+      className={`animate-pulse bg-gradient-to-r from-muted/40 via-muted/20 to-muted/40 rounded shadow-xs relative overflow-hidden ${className}`}
       {...props}
-    />
+    >
+      <div className="absolute inset-0 animate-gradient bg-gradient-primary opacity-20" />
+    </div>
   );
 }
 
-export { Skeleton };
+export default Skeleton;

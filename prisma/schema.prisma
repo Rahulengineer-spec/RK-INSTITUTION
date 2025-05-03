@@ -1,0 +1,256 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          Role      @default(USER)
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  phoneNumber   String?   @map("phone_number")
+  country       String?
+  bio           String?   @db.Text
+  verificationToken String? @unique @map("verification_token")
+  verificationTokenExpiry DateTime? @map("verification_token_expiry")
+  isVerified    Boolean   @default(false) @map("is_verified")
+  provider      String?   // For social login
+  providerId    String?   @map("provider_id") // For social login
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+  lastLogin     DateTime? @map("last_login")
+  failedAttempts Int      @default(0) @map("failed_attempts")
+  lockedUntil   DateTime? @map("locked_until")
+  enrollments   Enrollment[]
+  reviews       Review[]
+  coursesCreated Course[]  @relation("CreatedBy")
+  activities    UserActivity[]
+  progress      LearningProgress[]
+  transactions  RevenueTransaction[]
+
+  @@index([email])
+  @@index([role])
+  @@index([provider, providerId])
+  @@map("users")
+}
+
+model Course {
+  id              String    @id @default(cuid())
+  title           String
+  description     String
+  fullDescription String?   @db.Text
+  price           Float
+  originalPrice   Float?
+  instructor      String
+  instructorUser  User      @relation("CreatedBy", fields: [instructor], references: [id])
+  category        String
+  subcategory     String?
+  duration        String
+  level           Level     @default(BEGINNER)
+  rating          Float     @default(0)
+  students        Int       @default(0)
+  image           String?
+  previewVideo    String?
+  status          Status    @default(DRAFT)
+  syllabus        String[]
+  prerequisites   String[]
+  whatYouWillLearn String[]
+  requirements    String[]
+  targetAudience  String[]
+  language        String    @default("English")
+  lastUpdated     DateTime  @updatedAt
+  lectures        Int       @default(0)
+  totalHours      Int       @default(0)
+  certificate     Boolean   @default(false)
+  bestSeller      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? @map("deleted_at")
+  createdBy       String
+  updatedBy       String?
+  enrollments     Enrollment[]
+  reviews         Review[]
+  activities      UserActivity[]
+  progress        LearningProgress[]
+  transactions    RevenueTransaction[]
+  engagementMetrics EngagementMetric?
+  version         Int       @default(1)
+
+  @@index([category, status])
+  @@index([instructor, status])
+  @@index([title])
+  @@index([status])
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  progress  Float    @default(0)
+  status    EnrollmentStatus @default(IN_PROGRESS)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? @map("deleted_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Float
+  comment   String?  @db.Text
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime? @map("deleted_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@index([rating])
+}
+
+model Settings {
+  id              String    @id @default("1")
+  general         Json?
+  payment         Json?
+  email           Json?
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  updatedBy       String?
+
+  @@map("settings")
+}
+
+// Analytics Models
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  eventType EventType
+  metadata  Json?
+  duration  Int?     // Duration in seconds for time-based events
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@index([userId, courseId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model LearningProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  courseId       String
+  completedUnits Int      @default(0)
+  totalUnits     Int
+  lastAccessed   DateTime @default(now())
+  completedAt    DateTime?
+  user           User     @relation(fields: [userId], references: [id])
+  course         Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+  @@index([completedAt])
+}
+
+model RevenueTransaction {
+  id          String   @id @default(cuid())
+  courseId    String
+  userId      String
+  amount      Float
+  currency    String   @default("USD")
+  status      PaymentStatus
+  provider    String   // e.g., "stripe", "paypal"
+  metadata    Json?
+  refundedAt  DateTime?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+  course      Course   @relation(fields: [courseId], references: [id])
+
+  @@index([courseId])
+  @@index([createdAt])
+  @@index([status])
+}
+
+model EngagementMetric {
+  id                String   @id @default(cuid())
+  courseId          String   @unique
+  totalEnrollments  Int      @default(0)
+  activeUsers       Int      @default(0)
+  completionRate    Float    @default(0)
+  averageRating     Float    @default(0)
+  totalRevenue      Float    @default(0)
+  updatedAt         DateTime @updatedAt
+  course            Course   @relation(fields: [courseId], references: [id])
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  eventName  String
+  properties Json?
+  timestamp  DateTime
+  userAgent  String?
+  url        String?
+  createdAt  DateTime @default(now())
+
+  @@index([eventName])
+  @@index([timestamp])
+}
+
+enum Role {
+  USER
+  ADMIN
+  INSTRUCTOR
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum Status {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  IN_PROGRESS
+  COMPLETED
+  DROPPED
+}
+
+enum EventType {
+  COURSE_VIEW
+  LESSON_COMPLETE
+  COURSE_ENROLL
+  COURSE_COMPLETE
+  QUIZ_ATTEMPT
+  QUIZ_COMPLETE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+} 

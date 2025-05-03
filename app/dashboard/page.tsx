@@ -12,16 +12,41 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
+import { GuidedTour } from '@/components/ui/guided-tour'
+import StudentDashboard from './student/page'
+import AnalyticsPage from './analytics/page'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function DashboardPage() {
   const { supabase, session } = useSupabase()
   const [loading, setLoading] = useState(true)
+  const [role, setRole] = useState<string | null>(null)
   const [stats, setStats] = useState({
     totalCourses: 0,
     completedCourses: 0,
     totalFees: 0,
     paidFees: 0,
   })
+  const [showTour, setShowTour] = useState(true)
+  const steps = [
+    { target: '.dashboard-nav', content: 'This is your main navigation.' },
+    { target: '.profile-widget', content: 'Access your profile here.' },
+    { target: '.courses-section', content: 'Browse your courses here.' },
+  ]
+
+  useEffect(() => {
+    async function fetchRole() {
+      if (!session?.user.id) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+      setRole(data?.role || null);
+      setLoading(false);
+    }
+    fetchRole();
+  }, [session, supabase]);
 
   useEffect(() => {
     async function loadStats() {
@@ -60,68 +85,15 @@ export default function DashboardPage() {
   ]
 
   if (loading) {
-    return <div>Loading...</div>
+    return <Skeleton className="h-8 w-full" />;
   }
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Courses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCourses}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Courses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.completedCourses}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Fees</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.totalFees}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Paid Fees</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${stats.paidFees}</div>
-          </CardContent>
-        </Card>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Course Progress</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={progressData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="progress"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      {showTour && <GuidedTour steps={steps} run={showTour} onClose={() => setShowTour(false)} />}
+      {role === 'student' && <StudentDashboard />}
+      {(role === 'instructor' || role === 'admin') && <AnalyticsPage />}
+      {!role && <div className="text-center text-muted-foreground">Unknown role. Please contact support.</div>}
+    </>
   )
 }

@@ -2,10 +2,12 @@
 
 import * as React from 'react';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
-
 import { cn } from '@/lib/utils';
 
-const HoverCard = HoverCardPrimitive.Root;
+const HoverCard = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('bg-card shadow-lg rounded-lg p-4', className)} {...props} />
+));
+HoverCard.displayName = 'HoverCard';
 
 const HoverCardTrigger = HoverCardPrimitive.Trigger;
 

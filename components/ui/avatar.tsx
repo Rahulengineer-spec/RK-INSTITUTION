@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
-
 import { cn } from '@/lib/utils';
 
 const Avatar = React.forwardRef<
@@ -47,4 +46,23 @@ const AvatarFallback = React.forwardRef<
 ));
 AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 
-export { Avatar, AvatarImage, AvatarFallback };
+export interface AvatarProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const sizes = {
+  sm: 'w-8 h-8',
+  md: 'w-12 h-12',
+  lg: 'w-20 h-20',
+};
+
+const AvatarImageNew = React.forwardRef<HTMLImageElement, AvatarProps>(({ className, size = 'md', ...props }, ref) => (
+  <img
+    ref={ref}
+    className={cn('rounded-full border border-border bg-card shadow-xs object-cover', sizes[size], className)}
+    {...props}
+  />
+));
+AvatarImageNew.displayName = 'Avatar';
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarImageNew };

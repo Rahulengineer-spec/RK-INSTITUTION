@@ -21,9 +21,13 @@ export default class ErrorBoundary extends Component<Props, State> {
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error }
   }
-
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo)
+    
+    // Log to your analytics service or monitoring tool if available
+    if (error.name === 'ChunkLoadError' || error.message.includes('Loading chunk')) {
+      console.error('Chunk loading error detected - this may be due to a network issue or cached old chunks')
+    }
   }
 
   public render() {

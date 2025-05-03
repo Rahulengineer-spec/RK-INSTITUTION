@@ -13,6 +13,7 @@ import {
   Video,
   Receipt,
 } from "lucide-react"
+import ErrorBoundary from '@/components/ui/error-boundary'
 
 const items = [
   {
@@ -56,20 +57,29 @@ export function DashboardNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="grid items-start gap-2">
-      {items.map((item) => (
-        <Button
-          key={item.href}
-          variant={pathname === item.href ? "secondary" : "ghost"}
-          className="w-full justify-start"
-          asChild
-        >
-          <Link href={item.href}>
-            <item.icon className="mr-2 h-4 w-4" />
-            {item.title}
-          </Link>
-        </Button>
-      ))}
-    </nav>
+    <ErrorBoundary>
+      <nav className="grid items-start gap-2" role="navigation" aria-label="Dashboard Navigation">
+        {items.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">No navigation items available.</div>
+        ) : (
+          items.map((item) => (
+            <Button
+              key={item.href}
+              variant={pathname === item.href ? "default" : "ghost"}
+              className="w-full justify-start"
+              asChild
+              role="menuitem"
+              aria-current={pathname === item.href ? 'page' : undefined}
+              aria-label={item.title}
+            >
+              <Link href={item.href} tabIndex={0} aria-label={item.title} aria-current={pathname === item.href ? 'page' : undefined}>
+                <item.icon className="mr-2 h-4 w-4" aria-hidden="true" />
+                {item.title}
+              </Link>
+            </Button>
+          ))
+        )}
+      </nav>
+    </ErrorBoundary>
   )
 }

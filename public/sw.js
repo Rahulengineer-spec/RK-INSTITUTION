@@ -1,40 +1,40 @@
-const CACHE_NAME = 'edulearn-cache-v1'
-const urlsToCache = [
+const CACHE_NAME = 'analytics-dashboard-v1'
+const URLS_TO_CACHE = [
   '/',
-  '/courses',
-  '/login',
-  '/signup',
+  '/dashboard/analytics',
   '/manifest.json',
-  '/favicon.ico',
-  '/icon-192x192.png',
-  '/icon-512x512.png',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache)
-    })
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        return cache.addAll(URLS_TO_CACHE)
+      })
   )
 })
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      if (response) {
-        return response
-      }
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== 'basic') {
+    caches.match(event.request)
+      .then((response) => {
+        if (response) {
           return response
         }
-        const responseToCache = response.clone()
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache)
+        return fetch(event.request).then((response) => {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response
+          }
+          const responseToCache = response.clone()
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache)
+            })
+          return response
         })
-        return response
       })
-    })
   )
 })
 

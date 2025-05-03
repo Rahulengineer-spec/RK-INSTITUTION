@@ -1,65 +1,133 @@
 import Link from "next/link"
 import { Icons } from "@/components/icons"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 export function Footer() {
   return (
-    <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+    <footer className="relative border-t bg-gradient-to-br from-background/80 via-background to-background/90 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-16">
+        {/* Newsletter Banner */}
+        <div className="mb-16 p-8 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-background backdrop-blur-sm border">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Join Our Learning Community</h2>
+            <p className="text-base text-foreground/80 mb-6">Get weekly insights, course updates, and learning resources delivered to your inbox.</p>
+            <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <Input 
+                placeholder="Enter your email" 
+                type="email"
+                className="rounded-full h-12 bg-background/60 border-primary/20 focus:border-primary"
+                required 
+              />
+              <Button className="rounded-full h-12 px-8 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300">
+                Subscribe
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-4">
           {/* Brand Section */}
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold tracking-tight">
-                RK INSTITUTION
-              </span>
+              <span className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">RK INSTITUTION</span>
             </Link>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground/80">
               Empowering minds with cutting-edge education and innovative learning experiences.
             </p>
-            <div className="flex space-x-4">
-              <Link href="#" className="text-muted-foreground hover:text-primary">
-                <Icons.gitHub className="h-5 w-5" />
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-primary">
-                <Icons.google className="h-5 w-5" />
-              </Link>
+            <div className="flex space-x-4 mt-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="#" className="text-foreground/60 hover:text-primary transition-colors" aria-label="GitHub">
+                    <Icons.gitHub className="h-6 w-6 hover:scale-110 transition-transform" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>GitHub</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="#" className="text-foreground/60 hover:text-primary transition-colors" aria-label="Google">
+                    <Icons.google className="h-6 w-6 hover:scale-110 transition-transform" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>Google</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="#" className="text-foreground/60 hover:text-primary transition-colors" aria-label="LinkedIn">
+                    <Icons.linkedin className="h-6 w-6 hover:scale-110 transition-transform" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>LinkedIn</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link href="#" className="text-foreground/60 hover:text-primary transition-colors" aria-label="Twitter">
+                    <Icons.twitter className="h-6 w-6 hover:scale-110 transition-transform" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>Twitter</TooltipContent>
+              </Tooltip>
             </div>
           </div>
 
-          {/* Resources Section */}
+          {/* Quick Links Section */}
           <div>
-            <h3 className="text-lg font-semibold">Resources</h3>
-            <ul className="mt-4 space-y-2">
+            <h3 className="text-lg font-bold mb-4 text-foreground">Quick Links</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/blog" className="text-sm text-muted-foreground hover:text-primary">
-                  Blog
+                <Link href="/courses" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.book className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>Browse Courses</span>
+                </Link>
+              </li>
+              <li>                <Link href="/components/blog" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.post className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>Blog & Resources</span>
                 </Link>
               </li>
               <li>
-                <Link href="/faq" className="text-sm text-muted-foreground hover:text-primary">
-                  FAQ
+                <Link href="/about" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.info className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>About Us</span>
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-sm text-muted-foreground hover:text-primary">
-                  Support
+                <Link href="/contact" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.contact className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>Contact</span>
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Legal Section */}
+          {/* Resources Section */}
           <div>
-            <h3 className="text-lg font-semibold">Legal</h3>
-            <ul className="mt-4 space-y-2">
+            <h3 className="text-lg font-bold mb-4 text-foreground">Resources</h3>
+            <ul className="space-y-3">
               <li>
-                <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">
-                  Privacy Policy
+                <Link href="/faq" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.help className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>FAQ</span>
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary">
-                  Terms of Service
+                <Link href="/support" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.support className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>Support Center</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.shield className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>Privacy Policy</span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-2 group">
+                  <Icons.file className="h-4 w-4 group-hover:text-primary transition-colors" />
+                  <span>Terms of Service</span>
                 </Link>
               </li>
             </ul>
@@ -67,28 +135,53 @@ export function Footer() {
 
           {/* Contact Section */}
           <div>
-            <h3 className="text-lg font-semibold">Contact Us</h3>
-            <ul className="mt-4 space-y-2">
-              <li className="text-sm text-muted-foreground">
-                Email: support@rkinstitution.com
-              </li>
-              <li className="text-sm text-muted-foreground">
-                Phone: +1 (555) 123-4567
-              </li>
-              <li className="text-sm text-muted-foreground">
-                Address: 123 Education St, Learning City
-              </li>
-            </ul>
+            <h3 className="text-lg font-bold mb-4 text-foreground">Contact Us</h3>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 group">
+                <Icons.mapPin className="h-5 w-5 text-primary mt-0.5 group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Visit Us</p>
+                  <p className="text-sm text-foreground/80">123 Education St,<br />Learning City, LC 12345</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 group">
+                <Icons.phone className="h-5 w-5 text-primary mt-0.5 group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Call Us</p>
+                  <p className="text-sm text-foreground/80">+1 (555) 123-4567</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 group">
+                <Icons.mail className="h-5 w-5 text-primary mt-0.5 group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">Email Us</p>
+                  <p className="text-sm text-foreground/80">support@rkinstitution.com</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 border-t pt-8">
-          <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} RK INSTITUTION. All rights reserved.
-          </p>
+        <div className="mt-16 pt-8 border-t border-border/40">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-foreground/60">&copy; {new Date().getFullYear()} RK INSTITUTION</span>
+              <span className="hidden md:inline text-foreground/40">|</span>
+              <span className="text-sm text-foreground/60">All rights reserved</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/sitemap" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                Sitemap
+              </Link>
+              <span className="text-foreground/40">|</span>
+              <Link href="/accessibility" className="text-sm text-foreground/60 hover:text-primary transition-colors">
+                Accessibility
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
   )
-} 
+}

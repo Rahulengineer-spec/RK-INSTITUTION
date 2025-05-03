@@ -1,57 +1,147 @@
 "use client"
 
+import { useState } from "react"
 import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { useToast } from "@/components/ui/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import * as z from "zod"
+
+const contactFormSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  subject: z.string().min(5, "Subject must be at least 5 characters"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+})
+
+type ContactFormValues = z.infer<typeof contactFormSchema>
 
 export default function ContactPage() {
+  const { toast } = useToast()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const form = useForm<ContactFormValues>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+    },
+  })
+
+  async function onSubmit(data: ContactFormValues) {
+    try {
+      setIsSubmitting(true)
+      // Here you would typically send the data to your API
+      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulated API call
+      
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll get back to you as soon as possible.",
+      })
+      form.reset()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-          <p className="text-xl text-muted-foreground">
+          <h1 className="text-4xl font-bold mb-4 text-foreground">Contact Us</h1>
+          <p className="text-xl text-foreground/90">
             We&apos;re here to help you with any questions or concerns
           </p>
         </div>
 
         {/* Contact Form */}
         <div className="mb-12">
-          <div className="rounded-lg border p-8">
-            <h2 className="text-2xl font-bold mb-6">Send us a Message</h2>
-            <form className="space-y-6">
+          <div className="rounded-lg border p-8 bg-card shadow-sm">
+            <h2 className="text-2xl font-bold mb-6 text-foreground">Send us a Message</h2>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-semibold mb-2 text-foreground">
                     Name
                   </label>
-                  <Input placeholder="Your name" />
+                  <Input 
+                    {...form.register("name")}
+                    placeholder="Your name" 
+                    className="h-11 bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
+                    aria-invalid={!!form.formState.errors.name}
+                  />
+                  {form.formState.errors.name && (
+                    <p className="mt-1 text-sm text-red-500">{form.formState.errors.name.message}</p>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-semibold mb-2 text-foreground">
                     Email
                   </label>
-                  <Input type="email" placeholder="your@email.com" />
+                  <Input 
+                    {...form.register("email")}
+                    type="email" 
+                    placeholder="your@email.com" 
+                    className="h-11 bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
+                    aria-invalid={!!form.formState.errors.email}
+                  />
+                  {form.formState.errors.email && (
+                    <p className="mt-1 text-sm text-red-500">{form.formState.errors.email.message}</p>
+                  )}
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-semibold mb-2 text-foreground">
                   Subject
                 </label>
-                <Input placeholder="What can we help you with?" />
+                <Input 
+                  {...form.register("subject")}
+                  placeholder="What can we help you with?" 
+                  className="h-11 bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
+                  aria-invalid={!!form.formState.errors.subject}
+                />
+                {form.formState.errors.subject && (
+                  <p className="mt-1 text-sm text-red-500">{form.formState.errors.subject.message}</p>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label className="block text-sm font-semibold mb-2 text-foreground">
                   Message
                 </label>
                 <Textarea
+                  {...form.register("message")}
                   placeholder="Describe your issue or question in detail"
-                  className="min-h-[150px]"
+                  className="min-h-[150px] bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y"
+                  aria-invalid={!!form.formState.errors.message}
                 />
+                {form.formState.errors.message && (
+                  <p className="mt-1 text-sm text-red-500">{form.formState.errors.message.message}</p>
+                )}
               </div>
-              <Button type="submit" className="w-full">
-                Send Message
+              <Button 
+                type="submit" 
+                className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Send Message"
+                )}
               </Button>
             </form>
           </div>
@@ -59,49 +149,64 @@ export default function ContactPage() {
 
         {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="rounded-lg border p-6">
-            <h2 className="text-2xl font-bold mb-4">Contact Information</h2>
+          <div className="rounded-lg border p-6 bg-card hover:bg-card/80 transition-colors shadow-sm">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Contact Information</h2>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Icons.mail className="h-6 w-6 text-primary" />
+              <div className="flex items-center gap-4 group">
+                <Icons.mail className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="font-medium">Email</p>
-                  <p className="text-muted-foreground">support@rkinstitution.com</p>
+                  <p className="font-semibold text-foreground">Email</p>
+                  <a 
+                    href="mailto:support@rkinstitution.com" 
+                    className="text-foreground/90 hover:text-primary transition-colors"
+                  >
+                    support@rkinstitution.com
+                  </a>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <Icons.mail className="h-6 w-6 text-primary" />
+              <div className="flex items-center gap-4 group">
+                <Icons.mail className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="font-medium">Technical Support</p>
-                  <p className="text-muted-foreground">tech@rkinstitution.com</p>
+                  <p className="font-semibold text-foreground">Technical Support</p>
+                  <a 
+                    href="mailto:tech@rkinstitution.com" 
+                    className="text-foreground/90 hover:text-primary transition-colors"
+                  >
+                    tech@rkinstitution.com
+                  </a>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <Icons.mail className="h-6 w-6 text-primary" />
+              <div className="flex items-center gap-4 group">
+                <Icons.mapPin className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
                 <div>
-                  <p className="font-medium">Address</p>
-                  <p className="text-muted-foreground">
+                  <p className="font-semibold text-foreground">Address</p>
+                  <a 
+                    href="https://maps.google.com/?q=123+Education+Street,+Learning+City,+12345"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-foreground/90 hover:text-primary transition-colors"
+                  >
                     123 Education Street, Learning City, 12345
-                  </p>
+                  </a>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-lg border p-6">
-            <h2 className="text-2xl font-bold mb-4">Business Hours</h2>
+          <div className="rounded-lg border p-6 bg-card hover:bg-card/80 transition-colors shadow-sm">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Business Hours</h2>
             <div className="space-y-2">
-              <p className="flex justify-between">
-                <span>Monday - Friday</span>
-                <span>9:00 AM - 6:00 PM</span>
+              <p className="flex justify-between text-foreground">
+                <span className="font-semibold">Monday - Friday</span>
+                <span className="text-foreground/90">9:00 AM - 6:00 PM</span>
               </p>
-              <p className="flex justify-between">
-                <span>Saturday</span>
-                <span>10:00 AM - 4:00 PM</span>
+              <p className="flex justify-between text-foreground">
+                <span className="font-semibold">Saturday</span>
+                <span className="text-foreground/90">10:00 AM - 4:00 PM</span>
               </p>
-              <p className="flex justify-between">
-                <span>Sunday</span>
-                <span>Closed</span>
+              <p className="flex justify-between text-foreground">
+                <span className="font-semibold">Sunday</span>
+                <span className="text-foreground/90">Closed</span>
               </p>
             </div>
           </div>

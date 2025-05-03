@@ -1,7 +1,11 @@
 import { MetadataRoute } from 'next'
+import { generateBlogSitemap } from './components/blog/sitemap-generator'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://edulearn.com'
+  
+  // Get blog entries - fix type casting
+  const blogEntries = await generateBlogSitemap() as MetadataRoute.Sitemap;
   
   return [
     {
@@ -33,12 +37,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.7,
-    },
-    {
+    },    {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    // Spread the blog entries into the sitemap
+    ...blogEntries,
   ]
-} 
+}

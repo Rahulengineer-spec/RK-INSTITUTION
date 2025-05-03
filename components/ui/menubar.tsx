@@ -16,20 +16,12 @@ const MenubarSub = MenubarPrimitive.Sub;
 
 const MenubarRadioGroup = MenubarPrimitive.RadioGroup;
 
-const Menubar = React.forwardRef<
-  React.ElementRef<typeof MenubarPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <MenubarPrimitive.Root
-    ref={ref}
-    className={cn(
-      'flex h-10 items-center space-x-1 rounded-md border bg-background p-1',
-      className
-    )}
-    {...props}
-  />
+export interface MenubarProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+const Menubar = React.forwardRef<HTMLDivElement, MenubarProps>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('flex items-center gap-2 bg-card shadow-xs rounded-lg p-2', className)} {...props} />
 ));
-Menubar.displayName = MenubarPrimitive.Root.displayName;
+Menubar.displayName = 'Menubar';
 
 const MenubarTrigger = React.forwardRef<
   React.ElementRef<typeof MenubarPrimitive.Trigger>,

@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useCsrf, validateCsrfToken } from "@/hooks/useCsrf"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 interface Profile {
   id: string
@@ -22,6 +25,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState(false)
+  const { csrfToken, loading: csrfLoading, error: csrfError } = useCsrf()
 
   useEffect(() => {
     async function loadProfile() {
@@ -44,6 +48,15 @@ export default function ProfilePage() {
     event.preventDefault()
     if (!profile) return
 
+    if (!csrfToken) {
+      toast({
+        title: "Error",
+        description: "Unable to verify security token. Please try again.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setUpdating(true)
     const formData = new FormData(event.currentTarget)
     const updates = {
@@ -51,29 +64,52 @@ export default function ProfilePage() {
       updated_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update(updates)
-      .eq("id", profile.id)
+    try {
+      // First validate the CSRF token
+      const isValidToken = await validateCsrfToken(csrfToken)
+      if (!isValidToken) {
+        throw new Error('Invalid security token')
+      }
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      })
-    } else {
+      const { error } = await supabase
+        .from("profiles")
+        .update(updates)
+        .eq("id", profile.id)
+
+      if (error) {
+        throw error
+      }
+
       toast({
         title: "Success",
         description: "Your profile has been updated.",
       })
       setProfile({ ...profile, ...updates })
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setUpdating(false)
     }
-
-    setUpdating(false)
   }
 
   if (loading) return <div>Loading...</div>
+
+  if (csrfError) {
+    return (
+      <div className="space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load security token. Please refresh the page and try again.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -117,8 +153,11 @@ export default function ProfilePage() {
                   disabled
                 />
               </div>
-              <Button type="submit" disabled={updating}>
-                {updating ? "Updating..." : "Update Profile"}
+              <Button 
+                type="submit" 
+                disabled={updating || csrfLoading}
+              >
+                {updating || csrfLoading ? "Please wait..." : "Update Profile"}
               </Button>
             </form>
           </CardContent>

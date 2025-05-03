@@ -1,129 +1,68 @@
 "use client"
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { useSupabase } from "@/components/providers/supabase-provider"
-import { Menu, X, BookOpen, User, GraduationCap, Phone } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Icons } from "@/components/icons"
+import { MainNav } from "@/components/main-nav"
+import { Breadcrumbs } from "@/components/breadcrumbs"
+import { DesktopNavigation } from "@/components/header/desktop-navigation"
+import { MobileNavigation } from "@/components/header/mobile-navigation"
+import { UserActions } from "@/components/header/user-actions"
 
 export function SiteHeader() {
-  const pathname = usePathname()
-  const { session } = useSupabase()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  // Handle escape key to close mobile menu
   useEffect(() => {
-    setMounted(true)
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10)
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false)
+      }
     }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
   }, [])
 
-  const navItems = [
-    { href: "/about", label: "About", icon: <User className="h-4 w-4" /> },
-    { href: "/courses", label: "Courses", icon: <BookOpen className="h-4 w-4" /> },
-    { href: "/instructor", label: "Instructors", icon: <GraduationCap className="h-4 w-4" /> },
-    { href: "/contact", label: "Contact", icon: <Phone className="h-4 w-4" /> },
-  ]
-
   return (
-    <header className={cn(
-      "sticky top-0 z-50 w-full transition-all duration-300",
-      scrolled ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm" : "bg-transparent"
-    )}>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                RK INSTITUTION
-              </span>
-            </Link>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary",
-                  pathname === item.href
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center space-x-4">
-            {mounted && <ModeToggle />}
-            {session ? (
-              <Button asChild variant="default" className="hidden md:flex">
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
-            ) : (
-              <Button asChild className="hidden md:flex">
-                <Link href="/login">Get Started</Link>
-              </Button>
-            )}
-            
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-2 rounded-md hover:bg-accent transition-colors"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
+    <header 
+      className={cn(
+        "sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "transition-all duration-200"
+      )}
+      role="banner"
+    >
+      <div className="container flex h-16 items-center">
+        <MainNav />
+        
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex md:flex-1 md:items-center md:justify-between md:space-x-4">
+          <DesktopNavigation />
+          <UserActions />
         </div>
 
-        {/* Mobile Navigation */}
-        <div 
-          className={cn(
-            "md:hidden transition-all duration-300 ease-in-out",
-            isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"
-          )}
+        {/* Mobile Navigation Button */}
+        <Button
+          variant="ghost"
+          className="ml-2 px-0 text-base hover:bg-transparent focus:ring-2 focus:ring-primary md:hidden dark:text-gray-100 dark:hover:bg-gray-800"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
         >
-          <div className="space-y-1 px-2 pb-3 pt-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors",
-                  pathname === item.href
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                )}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            ))}
-            {session ? (
-              <Button asChild variant="default" className="w-full justify-start">
-                <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
-              </Button>
-            ) : (
-              <Button asChild className="w-full justify-start">
-                <Link href="/login" onClick={() => setIsMenuOpen(false)}>Get Started</Link>
-              </Button>
-            )}
-          </div>
-        </div>
+          <Icons.menu className="h-6 w-6" aria-hidden="true" />
+        </Button>
+
+        {/* Mobile Navigation Menu */}
+        <MobileNavigation 
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
+      </div>
+
+      {/* Breadcrumbs */}
+      <div className="container py-2 text-sm text-muted-foreground dark:text-gray-400" role="navigation" aria-label="Breadcrumb">
+        <Breadcrumbs />
       </div>
     </header>
   )

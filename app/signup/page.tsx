@@ -1,202 +1,413 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Icons } from "@/components/icons"
-import Link from "next/link"
-import { Progress } from "@/components/ui/progress"
-import { cn } from "@/lib/utils"
-import { StatisticsCounter } from "@/components/statistics-counter"
-
-interface PasswordRequirements {
-  length: boolean
-  uppercase: boolean
-  lowercase: boolean
-  number: boolean
-  special: boolean
-}
+import { useToast } from "@/components/ui/use-toast"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, EyeOff, AlertCircle, CheckCircle2, XCircle, Loader2, RefreshCw } from "lucide-react"
+import { useCsrf } from "@/lib/hooks/use-csrf"
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [passwordStrength, setPasswordStrength] = useState(0)
-  const [requirements, setRequirements] = useState<PasswordRequirements>({
-    length: false,
-    uppercase: false,
-    lowercase: false,
-    number: false,
-    special: false,
-  })
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const { toast } = useToast()
+  const { csrfToken, isLoading: csrfLoading, error: csrfError, retry: retryCsrf } = useCsrf()
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    role: "student",
+    acceptTerms: false,
+  })
 
-  useEffect(() => {
-    const newRequirements = {
-      length: password.length >= 8,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /[0-9]/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    minLength: false,
+    hasNumber: false,
+    hasSpecial: false,
+    hasUppercase: false,
+  })
+
+  const [formErrors, setFormErrors] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+  })
+
+  const validatePassword = (password: string) => {
+    setPasswordRequirements({
+      minLength: password.length >= 8,
+      hasNumber: /\d/.test(password),
+      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      hasUppercase: /[A-Z]/.test(password),
+    })
+  }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value
+    setFormData({ ...formData, password: newPassword })
+    validatePassword(newPassword)
+  }
+
+  const isPasswordValid = () => {
+    return Object.values(passwordRequirements).every(Boolean)
+  }
+
+  // Add validation functions
+  const validateFullName = (name: string) => {
+    if (name.length < 2) return "Name must be at least 2 characters long"
+    if (!/^[a-zA-Z]+(?: [a-zA-Z]+)*$/.test(name)) {
+      return "Name should only contain letters and spaces"
     }
-    setRequirements(newRequirements)
+    if (!/^[A-Z][a-zA-Z]*(?: [A-Z][a-zA-Z]*)*$/.test(name)) {
+      return "Each word should start with a capital letter"
+    }
+    return ""
+  }
 
-    const strength = Object.values(newRequirements).filter(Boolean).length
-    setPasswordStrength((strength / 5) * 100)
-  }, [password])
+  const validateEmail = (email: string) => {
+    if (!email) return "Email is required"
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return "Please enter a valid email address"
+    }
+    // Add allowed domains - customize this list as needed
+    const allowedDomains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com"]
+    const domain = email.split("@")[1]
+    if (!allowedDomains.includes(domain)) {
+      return "Please use a valid email domain"
+    }
+    return ""
+  }
+
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFormData({ ...formData, fullName: value })
+    setFormErrors({ ...formErrors, fullName: validateFullName(value) })
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setFormData({ ...formData, email: value })
+    setFormErrors({ ...formErrors, email: validateEmail(value) })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match")
-      setIsLoading(false)
+    
+    if (!csrfToken) {
+      toast({
+        title: "Error",
+        description: "Security token not available. Please wait or try again.",
+        variant: "destructive",
+      })
       return
     }
 
-    if (passwordStrength < 100) {
-      setError("Please meet all password requirements")
-      setIsLoading(false)
+    // Validate all fields before submission
+    const nameError = validateFullName(formData.fullName)
+    const emailError = validateEmail(formData.email)
+    const hasPasswordError = !isPasswordValid()
+
+    setFormErrors({
+      fullName: nameError,
+      email: emailError,
+      password: hasPasswordError ? "Please meet all password requirements" : "",
+    })
+
+    if (nameError || emailError || hasPasswordError || !formData.acceptTerms) {
+      toast({
+        title: "Validation Error",
+        description: "Please correct all errors before submitting.",
+        variant: "destructive",
+      })
       return
     }
 
+    setLoading(true)
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${location.origin}/auth/callback`,
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
         },
+        body: JSON.stringify(formData),
       })
 
-      if (error) throw error
+      const data = await response.json()
 
-      router.push("/verify-email")
-    } catch (error: any) {
-      setError(error.message || "An error occurred during signup")
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create account")
+      }
+
+      toast({
+        title: "Success",
+        description: "Your account has been created successfully.",
+      })
+
+      // Redirect to dashboard or login page based on your flow
+      router.push("/login")
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create account",
+        variant: "destructive",
+      })
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  return (
-    <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-      <div className="relative hidden h-full flex-col bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-10 text-white lg:flex dark:border-r">
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold tracking-tight">
-              RK INSTITUTION
-            </span>
-          </Link>
-        </div>
-        <div className="relative z-20 mt-auto">
-          <blockquote className="space-y-2">
-            <p className="text-lg">
-              &ldquo;Empowering minds with cutting-edge education and innovative learning experiences. Shape your future with us.&rdquo;
-            </p>
-          </blockquote>
-          <StatisticsCounter />
-        </div>
+  if (csrfError) {
+    return (
+      <div className="container flex h-screen w-screen flex-col items-center justify-center">
+        <Card className="w-full max-w-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardDescription>
+              Enter your details below to create your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="error" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="flex justify-between items-center">
+                <span>Failed to load security token.</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={retryCsrf}
+                  disabled={csrfLoading}
+                >
+                  {csrfLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Retry"
+                  )}
+                </Button>
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
       </div>
-      <div className="lg:p-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-          <div className="flex flex-col space-y-2 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Create an account
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Enter your email below to create your account
-            </p>
-          </div>
+    )
+  }
+
+  return (
+    <div className="container flex h-screen w-screen flex-col items-center justify-center">
+      <Card className="w-full max-w-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+          <CardDescription>
+            Enter your details below to create your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {csrfError && (
+            <div className="mb-6 bg-destructive/10 text-destructive text-sm rounded-lg px-4 py-3 flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <div className="flex-1">Security verification failed.</div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 hover:bg-destructive/20"
+                onClick={retryCsrf}
+                disabled={csrfLoading}
+              >
+                <RefreshCw className={`h-4 w-4 ${csrfLoading ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                placeholder="John Doe"
+                value={formData.fullName}
+                onChange={handleFullNameChange}
+                required
+                className={formErrors.fullName ? "border-red-500" : ""}
+              />
+              {formErrors.fullName && (
+                <p className="text-sm text-red-500">{formErrors.fullName}</p>
+              )}
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="john@example.com"
+                value={formData.email}
+                onChange={handleEmailChange}
                 required
+                className={formErrors.email ? "border-red-500" : ""}
               />
+              {formErrors.email && (
+                <p className="text-sm text-red-500">{formErrors.email}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <div className="space-y-2">
-                <Progress value={passwordStrength} className="h-2" />
-                <div className="grid gap-2 text-sm">
-                  <div className={cn("flex items-center", requirements.length ? "text-green-500" : "text-muted-foreground")}>
-                    <Icons.check className="mr-2 h-4 w-4" />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handlePasswordChange}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <div className="space-y-2 text-sm">
+                <p className="font-medium">Password Requirements:</p>
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2">
+                    {passwordRequirements.minLength ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
                     At least 8 characters
-                  </div>
-                  <div className={cn("flex items-center", requirements.uppercase ? "text-green-500" : "text-muted-foreground")}>
-                    <Icons.check className="mr-2 h-4 w-4" />
-                    At least one uppercase letter
-                  </div>
-                  <div className={cn("flex items-center", requirements.lowercase ? "text-green-500" : "text-muted-foreground")}>
-                    <Icons.check className="mr-2 h-4 w-4" />
-                    At least one lowercase letter
-                  </div>
-                  <div className={cn("flex items-center", requirements.number ? "text-green-500" : "text-muted-foreground")}>
-                    <Icons.check className="mr-2 h-4 w-4" />
-                    At least one number
-                  </div>
-                  <div className={cn("flex items-center", requirements.special ? "text-green-500" : "text-muted-foreground")}>
-                    <Icons.check className="mr-2 h-4 w-4" />
-                    At least one special character
-                  </div>
-                </div>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {passwordRequirements.hasUppercase ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    One uppercase letter
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {passwordRequirements.hasNumber ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    One number
+                  </li>
+                  <li className="flex items-center gap-2">
+                    {passwordRequirements.hasSpecial ? (
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <XCircle className="h-4 w-4 text-red-500" />
+                    )}
+                    One special character
+                  </li>
+                </ul>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <Label htmlFor="role">I want to</Label>
+              <Select
+                value={formData.role}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, role: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="student">Learn as a Student</SelectItem>
+                  <SelectItem value="instructor">Teach as an Instructor</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            {error && (
-              <div className="text-sm text-red-500">
-                {error}
-              </div>
-            )}
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="terms"
+                checked={formData.acceptTerms}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, acceptTerms: checked as boolean })
+                }
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                I agree to the{" "}
+                <Link href="/terms" className="text-primary hover:underline">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="text-primary hover:underline">
+                  Privacy Policy
+                </Link>
+              </label>
+            </div>
+            <Alert variant="info" className="bg-muted">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                By signing up, you acknowledge that you have read and understood our
+                data practices as described in our Privacy Policy.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading || csrfLoading || !formData.acceptTerms}
+            >
+              {loading || csrfLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {csrfLoading ? "Verifying..." : "Creating account..."}
+                </>
+              ) : (
+                "Create account"
               )}
-              Sign Up
             </Button>
           </form>
-          <p className="px-8 text-center text-sm text-muted-foreground">
+        </CardContent>
+        <CardFooter className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              className="underline underline-offset-4 hover:text-primary"
-            >
+            <Link href="/login" className="text-primary hover:underline">
               Sign in
             </Link>
-          </p>
-        </div>
-      </div>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            Need help?{" "}
+            <Link href="/support" className="text-primary hover:underline">
+              Contact support
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   )
 } 

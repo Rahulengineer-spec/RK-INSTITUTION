@@ -5,6 +5,9 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/components/ui/use-toast'
+import { useCsrf, validateCsrfToken } from "@/hooks/useCsrf"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('')
@@ -15,6 +18,7 @@ export default function ResetPassword() {
   const router = useRouter()
   const supabase = createClientComponentClient()
   const { toast } = useToast()
+  const { csrfToken, loading: csrfLoading, error: csrfError } = useCsrf()
 
   useEffect(() => {
     // Check if we have a session
@@ -53,6 +57,16 @@ export default function ResetPassword() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (!csrfToken) {
+      toast({
+        title: "Error",
+        description: "Unable to verify security token. Please try again.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setLoading(true)
 
     const passwordError = validatePassword(password)
@@ -69,6 +83,12 @@ export default function ResetPassword() {
     }
 
     try {
+      // First validate the CSRF token
+      const isValidToken = await validateCsrfToken(csrfToken)
+      if (!isValidToken) {
+        throw new Error('Invalid security token')
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: password
       })
@@ -95,6 +115,19 @@ export default function ResetPassword() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (csrfError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <Alert variant="destructive" className="w-full max-w-md">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load security token. Please refresh the page and try again.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
   }
 
   return (
@@ -169,10 +202,10 @@ export default function ResetPassword() {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || csrfLoading}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Resetting password...' : 'Reset password'}
+                {loading || csrfLoading ? 'Please wait...' : 'Reset password'}
               </button>
             </div>
           </form>
