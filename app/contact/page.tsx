@@ -56,19 +56,19 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-background via-banner to-background/80 py-12">
+      <div className="container max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4 text-foreground">Contact Us</h1>
-          <p className="text-xl text-foreground/90">
+          <h1 className="text-5xl md:text-6xl font-extrabold gradient-text mb-4">Contact Us</h1>
+          <p className="text-xl text-muted-foreground">
             We&apos;re here to help you with any questions or concerns
           </p>
         </div>
 
         {/* Contact Form */}
         <div className="mb-12">
-          <div className="rounded-lg border p-8 bg-card shadow-sm">
-            <h2 className="text-2xl font-bold mb-6 text-foreground">Send us a Message</h2>
+          <div className="glass-card-improved p-8">
+            <h2 className="text-2xl font-bold mb-6 gradient-text">Send us a Message</h2>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -78,7 +78,7 @@ export default function ContactPage() {
                   <Input 
                     {...form.register("name")}
                     placeholder="Your name" 
-                    className="h-11 bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
+                    className="h-11 bg-background text-foreground placeholder:text-muted-foreground border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
                     aria-invalid={!!form.formState.errors.name}
                   />
                   {form.formState.errors.name && (
@@ -93,7 +93,7 @@ export default function ContactPage() {
                     {...form.register("email")}
                     type="email" 
                     placeholder="your@email.com" 
-                    className="h-11 bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
+                    className="h-11 bg-background text-foreground placeholder:text-muted-foreground border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
                     aria-invalid={!!form.formState.errors.email}
                   />
                   {form.formState.errors.email && (
@@ -108,7 +108,7 @@ export default function ContactPage() {
                 <Input 
                   {...form.register("subject")}
                   placeholder="What can we help you with?" 
-                  className="h-11 bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
+                  className="h-11 bg-background text-foreground placeholder:text-muted-foreground border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
                   aria-invalid={!!form.formState.errors.subject}
                 />
                 {form.formState.errors.subject && (
@@ -122,7 +122,7 @@ export default function ContactPage() {
                 <Textarea
                   {...form.register("message")}
                   placeholder="Describe your issue or question in detail"
-                  className="min-h-[150px] bg-background text-foreground placeholder:text-foreground/60 border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y"
+                  className="min-h-[150px] bg-background text-foreground placeholder:text-muted-foreground border-input/60 hover:border-primary focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-y"
                   aria-invalid={!!form.formState.errors.message}
                 />
                 {form.formState.errors.message && (
@@ -131,7 +131,7 @@ export default function ContactPage() {
               </div>
               <Button 
                 type="submit" 
-                className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all"
+                className="w-full h-11 button-primary font-semibold transition-all"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -149,8 +149,8 @@ export default function ContactPage() {
 
         {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="rounded-lg border p-6 bg-card hover:bg-card/80 transition-colors shadow-sm">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">Contact Information</h2>
+          <div className="glass-card-improved p-6">
+            <h2 className="text-2xl font-bold mb-4 gradient-text">Contact Information</h2>
             <div className="space-y-4">
               <div className="flex items-center gap-4 group">
                 <Icons.mail className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
@@ -193,8 +193,8 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="rounded-lg border p-6 bg-card hover:bg-card/80 transition-colors shadow-sm">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">Business Hours</h2>
+          <div className="glass-card-improved p-6">
+            <h2 className="text-2xl font-bold mb-4 gradient-text">Business Hours</h2>
             <div className="space-y-2">
               <p className="flex justify-between text-foreground">
                 <span className="font-semibold">Monday - Friday</span>

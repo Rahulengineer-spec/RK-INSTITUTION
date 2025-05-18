@@ -1,3 +1,5 @@
+"use client"
+
 import { Metadata } from "next"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
@@ -10,11 +12,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
 import { InfoIcon, ShieldIcon, BellIcon, UserIcon, GlobeIcon, BookIcon, MailIcon } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "Privacy Policy - EduTech Institute",
-  description: "Learn about how we collect, use, and protect your personal information at EduTech Institute.",
-}
 
 const TableOfContents = ({ activeSection, onSectionClick }: { activeSection: string; onSectionClick: (section: string) => void }) => (
   <Card className="p-4 sticky top-4 max-h-[calc(100vh-2rem)] overflow-auto">
@@ -113,10 +110,10 @@ export default function PrivacyPolicyPage() {
                 <AccordionContent>
                   <div className="prose dark:prose-invert">
                     <p>
-                      At EduTech Institute, we take your privacy seriously. This Privacy Policy explains how we collect,
+                      At Rk Institution, we take your privacy seriously. This Privacy Policy explains how we collect,
                       use, disclose, and safeguard your information when you visit our website and use our services.
                     </p>
-                    <Alert variant="default" className="mt-4">
+                    <Alert variant="info" className="mt-4">
                       <AlertTitle>Important Notice</AlertTitle>
                       <AlertDescription>
                         By continuing to use our services, you acknowledge that you have read and understood this policy.
@@ -180,7 +177,7 @@ export default function PrivacyPolicyPage() {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4">
-                    <Alert variant="default">
+                    <Alert variant="info">
                       <ShieldIcon className="h-4 w-4" />
                       <AlertTitle>Enterprise-Grade Security</AlertTitle>
                       <AlertDescription>

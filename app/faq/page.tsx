@@ -1,10 +1,4 @@
-import { Metadata } from "next"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-
-export const metadata: Metadata = {
-  title: "FAQ - EduTech Institute",
-  description: "Frequently asked questions about EduTech Institute courses, enrollment, and policies.",
-}
 
 interface FAQItem {
   question: string;
@@ -47,40 +41,40 @@ const faqItems: FAQItem[] = [
 
 export default function FAQPage() {
   return (
-    <div className="container mx-auto px-4 py-16 max-w-4xl">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">
-          Frequently Asked Questions
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Find answers to common questions about our courses and platform
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-banner to-background/80 py-12">
+      <div className="container max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-extrabold gradient-text mb-4">Frequently Asked Questions</h1>
+          <p className="text-lg text-muted-foreground">
+            Find answers to common questions about our courses and platform
+          </p>
+        </div>
 
-      <Accordion type="single" collapsible className="w-full">
-        {faqItems.map((item) => (
-          <AccordionItem key={item.id} value={item.id}>
-            <AccordionTrigger className="text-left text-lg font-semibold">
-              {item.question}
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              {item.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+        <Accordion type="single" collapsible className="w-full glass-card-improved p-6 mb-12">
+          {faqItems.map((item) => (
+            <AccordionItem key={item.id} value={item.id}>
+              <AccordionTrigger className="text-left text-lg font-semibold gradient-text">
+                {item.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                {item.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
 
-      <div className="mt-12 p-6 bg-muted rounded-lg">
-        <h2 className="text-xl font-semibold mb-4">Still have questions?</h2>
-        <p className="text-muted-foreground mb-4">
-          Cant find the answer you are looking for? Please reach out to our support team.
-        </p>
-        <a
-          href="/contact"
-          className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Contact Support
-        </a>
+        <div className="mt-12 p-8 glass flex flex-col items-center">
+          <h2 className="text-2xl font-bold mb-4 gradient-text">Still have questions?</h2>
+          <p className="text-muted-foreground mb-4">
+            Can&apos;t find the answer you are looking for? Please reach out to our support team.
+          </p>
+          <a
+            href="/contact"
+            className="button-primary px-8 py-3 text-base font-semibold"
+          >
+            Contact Support
+          </a>
+        </div>
       </div>
     </div>
   )

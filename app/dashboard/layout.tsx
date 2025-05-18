@@ -20,19 +20,21 @@ export default function DashboardLayout({
 
   return (
     <ErrorBoundary>
-      <div className="container grid flex-1 gap-12 md:grid-cols-[200px_1fr]">
-        <aside className="hidden w-[200px] flex-col md:flex">
+      <div className="container grid flex-1 gap-10 md:grid-cols-[240px_1fr] py-10">
+        <aside className="hidden md:flex flex-col w-[240px]">
           <DashboardNav />
         </aside>
         <main className="flex w-full flex-1 flex-col overflow-hidden">
-          <div className="flex items-center gap-4 p-4 border-b mb-4">
+          <div className="card mb-6 flex items-center gap-4 p-6 bg-gradient-to-r from-primary/10 to-accent/10">
             <Avatar>
               <AvatarImage src={session.user?.image || undefined} alt={session.user?.name || 'User'} />
               <AvatarFallback>{session.user?.name ? session.user.name[0] : 'U'}</AvatarFallback>
             </Avatar>
-            <span className="font-semibold text-lg">Welcome, {session.user?.name || 'User'}!</span>
+            <span className="font-semibold text-lg gradient-text">Welcome, {session.user?.name || 'User'}!</span>
           </div>
-          {children}
+          <div className="card p-8 bg-card/90 shadow-xl">
+            {children}
+          </div>
         </main>
       </div>
     </ErrorBoundary>

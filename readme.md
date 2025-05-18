@@ -1,4 +1,4 @@
-# RK INSTITUTION Learning Management System
+# Rk Institution Learning Management System
 
 A modern, feature-rich learning management system built with Next.js 13, React, TypeScript, and Tailwind CSS.
 

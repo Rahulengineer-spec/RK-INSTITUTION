@@ -41,26 +41,17 @@ const config = {
           DEFAULT: 'hsl(var(--success))',
           foreground: 'hsl(var(--success-foreground))',
         },
-        info: {
-          DEFAULT: 'rgb(var(--info-color))',
-        },
-        warning: {
-          DEFAULT: 'rgb(var(--warning-color))',
-        },
-        error: {
-          DEFAULT: 'rgb(var(--error-color))',
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
         },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
         },
-        accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
-        },
-        popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+        banner: {
+          DEFAULT: 'hsl(var(--banner))',
+          foreground: 'hsl(var(--banner-foreground))',
         },
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -73,7 +64,7 @@ const config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
+        sans: ['Inter', 'var(--font-sans)', ...fontFamily.sans],
       },
       keyframes: {
         'accordion-down': {
@@ -151,11 +142,9 @@ const config = {
         slideDown: 'slideDown 0.3s ease-out',
       },
       backgroundImage: {
-        'gradient-primary': 'var(--gradient-primary)',
-        'gradient-accent': 'var(--gradient-accent)',
-        'gradient-success': 'var(--gradient-success)',
-        'gradient-warning': 'var(--gradient-warning)',
-        'gradient-card': 'var(--gradient-card)',
+        'gradient-primary': 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)), hsl(var(--secondary)))',
+        'gradient-accent': 'linear-gradient(90deg, hsl(var(--accent)), hsl(var(--primary)))',
+        'gradient-card': 'linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--background)) 100%)',
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         'grid-primary': 'linear-gradient(to right, var(--primary) 1px, transparent 1px), linear-gradient(to bottom, var(--primary) 1px, transparent 1px)',

@@ -136,7 +136,7 @@ export default function TestimonialsPage() {
       >
         <h1 className="text-4xl font-bold">Student Testimonials</h1>
         <p className="text-muted-foreground max-w-[600px] mx-auto">
-          See what our students have to say about their learning experience at EduTech Institute
+          See what our students have to say about their learning experience at Rk Institution
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Badge variant="secondary" className="text-lg px-4 py-2">

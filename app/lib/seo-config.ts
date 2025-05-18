@@ -1,18 +1,18 @@
 export const defaultSEOConfig = {
-  defaultTitle: 'EduTech Institute - Online Learning Platform',
-  titleTemplate: '%s | EduTech Institute',
-  description: 'Discover the future of education with EduTech Institute. Access high-quality courses, expert insights, and innovative learning resources.',
+  defaultTitle: 'Rk Institution - Online Learning Platform',
+  titleTemplate: '%s | Rk Institution',
+  description: 'Discover the future of education with Rk Institution. Access high-quality courses, expert insights, and innovative learning resources.',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://edutech-institute.com',
-    siteName: 'EduTech Institute',
+    siteName: 'Rk Institution',
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'EduTech Institute',
+        alt: 'Rk Institution',
       },
     ],
   },

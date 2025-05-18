@@ -24,7 +24,7 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
   }
 
   return (
-    <article className="group relative flex flex-col space-y-2 rounded-lg transition-all duration-300 hover:shadow-md p-3 bg-card dark:bg-gray-800/80 border border-transparent hover:border-border dark:hover:border-gray-700">
+    <article className="group relative flex flex-col space-y-3 glass-card-improved transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] p-4 border-0">
       <Link 
         href={`/components/blog/${post.slug}`}
         className="relative aspect-[16/9] overflow-hidden rounded-lg block"
@@ -41,7 +41,7 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
           blurDataURL={`data:image/svg+xml;base64,${toBase64(shimmer(700, 475))}`}
         />
         {post.featured && (
-          <div className="absolute top-2 right-2 bg-primary px-2 py-1 text-xs font-medium text-primary-foreground dark:text-white rounded">
+          <div className="absolute top-2 right-2 bg-gradient-to-r from-primary to-accent text-white px-3 py-1 rounded-full font-semibold text-xs shadow-lg">
             Featured
           </div>
         )}
@@ -55,7 +55,7 @@ export function BlogCard({ post, priority = false }: BlogCardProps) {
           <span>{post.readingTime || '5 min read'}</span>
         </div>
         <Link href={`/components/blog/${post.slug}`}>
-          <h2 className="line-clamp-2 text-xl font-semibold tracking-tight hover:underline text-foreground dark:text-gray-100">
+          <h2 className="line-clamp-2 text-2xl font-bold gradient-text tracking-tight hover:underline">
             {post.title}
           </h2>
         </Link>

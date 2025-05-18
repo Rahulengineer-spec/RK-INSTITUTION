@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Eye, EyeOff, ShieldCheck, Lock } from "lucide-react"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -41,6 +42,24 @@ export default function RegisterPage() {
     confirmPassword: "",
     submit: ""
   })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [agreed, setAgreed] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState(0)
+
+  const calculateStrength = (password: string) => {
+    let score = 0
+    if (password.length >= 8) score++
+    if (/[A-Z]/.test(password)) score++
+    if (/[0-9]/.test(password)) score++
+    if (/[^A-Za-z0-9]/.test(password)) score++
+    return score
+  }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, password: e.target.value })
+    setPasswordStrength(calculateStrength(e.target.value))
+  }
 
   const validateForm = () => {
     let isValid = true
@@ -148,10 +167,19 @@ export default function RegisterPage() {
               Enter your information to create your account
             </CardDescription>
           </CardHeader>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
             <CardContent className="space-y-4">
+              <Button type="button" variant="outline" className="w-full flex items-center justify-center gap-2 mb-2" disabled={isLoading}>
+                <Icons.google className="h-5 w-5" /> Sign up with Google
+              </Button>
+              <div className="flex items-center my-2">
+                <div className="flex-grow border-t border-gray-200 dark:border-gray-700" />
+                <span className="mx-2 text-xs text-gray-400">or</span>
+                <div className="flex-grow border-t border-gray-200 dark:border-gray-700" />
+              </div>
               {errors.submit && (
-                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm">
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-red-400" />
                   {errors.submit}
                 </div>
               )}
@@ -164,9 +192,10 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900"
                   disabled={isLoading}
+                  autoComplete="name"
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-500">{errors.name}</p>
+                  <p className="text-sm text-red-500 flex items-center gap-1"><Lock className="h-3 w-3" /> {errors.name}</p>
                 )}
               </div>
               <div className="space-y-2">
@@ -179,40 +208,72 @@ export default function RegisterPage() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900"
                   disabled={isLoading}
+                  autoComplete="email"
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email}</p>
+                  <p className="text-sm text-red-500 flex items-center gap-1"><Lock className="h-3 w-3" /> {errors.email}</p>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900"
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={handlePasswordChange}
+                    className="border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900 pr-10"
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    className="absolute right-2 top-2 text-gray-400 hover:text-blue-600"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className={`h-2 w-24 rounded transition-all duration-300 ${passwordStrength === 0 ? 'bg-gray-200' : passwordStrength === 1 ? 'bg-red-400' : passwordStrength === 2 ? 'bg-yellow-400' : passwordStrength === 3 ? 'bg-blue-400' : 'bg-green-500'}`}></div>
+                  <span className="text-xs text-gray-400">
+                    {passwordStrength === 0 ? '' : passwordStrength === 1 ? 'Weak' : passwordStrength === 2 ? 'Fair' : passwordStrength === 3 ? 'Good' : 'Strong'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-400 mt-1 flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> Use 8+ chars, uppercase, number, symbol</p>
                 {errors.password && (
-                  <p className="text-sm text-red-500">{errors.password}</p>
+                  <p className="text-sm text-red-500 flex items-center gap-1"><Lock className="h-3 w-3" /> {errors.password}</p>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900"
-                  disabled={isLoading}
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    className="border-blue-100 dark:border-gray-800 bg-white dark:bg-gray-900 pr-10"
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    className="absolute right-2 top-2 text-gray-400 hover:text-blue-600"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-red-500">{errors.confirmPassword}</p>
+                  <p className="text-sm text-red-500 flex items-center gap-1"><Lock className="h-3 w-3" /> {errors.confirmPassword}</p>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 mb-4">
                 <Label htmlFor="role">I am a</Label>
                 <Select
                   value={formData.role}
@@ -231,12 +292,29 @@ export default function RegisterPage() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  id="terms"
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={() => setAgreed((v) => !v)}
+                  disabled={isLoading}
+                  className="accent-blue-600 h-4 w-4 rounded border-gray-300"
+                  required
+                />
+                <label htmlFor="terms" className="text-xs text-gray-500 dark:text-gray-400 select-none">
+                  I agree to the
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600 mx-1">Terms of Service</a>
+                  and
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600 mx-1">Privacy Policy</a>
+                </label>
+              </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4">
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-200 dark:shadow-none"
-                disabled={isLoading}
+                disabled={isLoading || !agreed}
               >
                 {isLoading && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />

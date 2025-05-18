@@ -2,75 +2,49 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Icons } from "@/components/icons"
-import { useCsrf } from "@/lib/hooks/use-csrf"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { AlertCircle, LogIn, Loader2, Lock, Mail, ShieldCheck, User, RefreshCw } from "lucide-react"
+import { supabase } from "@/lib/supabase/client"
+import { Loader2, Lock, Mail, User, Eye, EyeOff } from "lucide-react"
 
-interface LoginFormProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export default function LoginForm({ className, ...props }: LoginFormProps) {
+export default function LoginForm() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const { csrfToken, isLoading: csrfLoading, error: csrfError, validateToken, retry: retryCsrf } = useCsrf()
+  const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState("")
+  const [showPassword, setShowPassword] = React.useState(false)
 
   async function handleSubmit(event: React.SyntheticEvent) {
     event.preventDefault()
     setIsLoading(true)
     setError("")
-
-    if (!csrfToken) {
-      setError("Security token not available. Please wait or refresh the page.")
+    const target = event.target as typeof event.target & {
+      email: { value: string }
+      password: { value: string }
+    }
+    const email = target.email.value.trim().toLowerCase()
+    const password = target.password.value
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      setError(error.message)
+      toast.error(error.message)
       setIsLoading(false)
       return
     }
-
-    try {
-      const isValidToken = await validateToken(csrfToken)
-      if (!isValidToken) {
-        throw new Error("Invalid security token. Please refresh and try again.")
-      }
-
-      const target = event.target as typeof event.target & {
-        email: { value: string }
-        password: { value: string }
-      }
-
-      const signInResult = await signIn("credentials", {
-        email: target.email.value.toLowerCase(),
-        password: target.password.value,
-        csrfToken,
-        redirect: false,
-      })
-
-      if (!signInResult?.ok) {
-        throw new Error("Your sign in request failed. Please try again.")
-      }
-
-      router.push("/dashboard")
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occurred")
-      toast.error(error instanceof Error ? error.message : "An error occurred")
-    } finally {
-      setIsLoading(false)
-    }
+    toast.success("Login successful!")
+    router.push("/dashboard")
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-accent/10 to-background px-4">
-      <div className="w-full max-w-md bg-card/90 shadow-xl rounded-2xl p-8 md:p-10 flex flex-col items-center">
+      <div className="w-full max-w-md glass shadow-2xl rounded-2xl p-10 flex flex-col items-center">
         <div className="flex flex-col items-center mb-8">
-          <ShieldCheck className="h-12 w-12 text-primary mb-2 animate-bounce" />
-          <h1 className="text-3xl font-bold tracking-tight mb-1">Login</h1>
+          <User className="h-12 w-12 text-primary mb-2 animate-bounce" />
+          <h1 className="text-3xl font-bold tracking-tight mb-1 gradient-text">Login</h1>
           <p className="text-muted-foreground text-base">Sign in to your account</p>
         </div>
-
         <form onSubmit={handleSubmit} className="w-full space-y-6">
           <div className="space-y-4">
             <div className="relative">
@@ -84,8 +58,8 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
-                disabled={isLoading || csrfLoading}
-                className="pl-10 h-12 text-base rounded-lg border-input focus-visible:ring-2 focus-visible:ring-primary/40"
+                disabled={isLoading}
+                className="pl-12 h-12 text-base rounded-lg border-input focus-visible:ring-2 focus-visible:ring-primary/40 shadow-md"
               />
             </div>
             <div className="relative">
@@ -94,46 +68,39 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
               <Input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 autoCapitalize="none"
                 autoComplete="current-password"
                 autoCorrect="off"
-                disabled={isLoading || csrfLoading}
-                className="pl-10 h-12 text-base rounded-lg border-input focus-visible:ring-2 focus-visible:ring-primary/40"
+                disabled={isLoading}
+                className="pl-12 h-12 text-base rounded-lg border-input focus-visible:ring-2 focus-visible:ring-primary/40 shadow-md pr-12"
               />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm"
+                tabIndex={-1}
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
             </div>
           </div>
-
-          {(error || csrfError) && (
+          {error && (
             <div className="bg-destructive/10 text-destructive text-sm rounded-lg px-4 py-3 flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              <div className="flex-1">
-                {csrfError ? "Security verification failed." : error}
-              </div>
-              {csrfError && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 hover:bg-destructive/20"
-                  onClick={retryCsrf}
-                  disabled={csrfLoading}
-                >
-                  <RefreshCw className={`h-4 w-4 ${csrfLoading ? 'animate-spin' : ''}`} />
-                </Button>
-              )}
+              {error}
             </div>
           )}
-
           <Button
             type="submit"
-            className="w-full h-12 text-base font-semibold rounded-lg shadow-md hover:scale-[1.02] transition-transform duration-150"
-            disabled={isLoading || csrfLoading}
+            className="w-full h-12 text-base font-semibold rounded-lg button-primary shadow-lg hover:scale-105 transition-transform duration-150"
+            disabled={isLoading}
           >
-            {isLoading || csrfLoading ? (
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                {csrfLoading ? "Verifying..." : "Signing in..."}
+                Signing in...
               </>
             ) : (
               <>
@@ -143,47 +110,6 @@ export default function LoginForm({ className, ...props }: LoginFormProps) {
             )}
           </Button>
         </form>
-
-        <div className="relative my-6 w-full">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-          </div>
-        </div>
-
-        <Button
-          variant="outline"
-          type="button"
-          className="w-full h-12 text-base font-semibold rounded-lg flex items-center justify-center gap-2"
-          disabled={isLoading || csrfLoading}
-          onClick={async () => {
-            try {
-              if (!csrfToken) {
-                throw new Error("Security token not available. Please wait or refresh the page.")
-              }
-
-              const isValidToken = await validateToken(csrfToken)
-              if (!isValidToken) {
-                throw new Error("Invalid security token. Please refresh and try again.")
-              }
-
-              await signIn("google", { csrfToken })
-            } catch (error) {
-              setError(error instanceof Error ? error.message : "An error occurred")
-              toast.error(error instanceof Error ? error.message : "An error occurred")
-            }
-          }}
-        >
-          {isLoading ? (
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-          ) : (
-            <Icons.google className="mr-2 h-5 w-5" />
-          )}
-          Google
-        </Button>
-
         <div className="w-full flex flex-col items-center mt-8">
           <span className="text-sm text-muted-foreground">Don&apos;t have an account?</span>
           <a

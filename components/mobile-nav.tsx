@@ -87,7 +87,7 @@ export function MobileNav() {
     },
     {
       title: "Blog",
-      href: "/components/blog",
+      href: "/blog",
       icon: Icons.fileText,
       ariaLabel: "Read our blog"
     }

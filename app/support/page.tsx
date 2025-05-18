@@ -12,8 +12,8 @@ import { useState } from "react"
 import { Mail, Phone, MessageSquare, Clock, Search, HelpCircle, TicketIcon, AlertCircle, CheckCircle2, BookOpen, PlayCircle, Users, ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Support - EduTech Institute",
-  description: "Get help and support for your learning journey at EduTech Institute.",
+  title: "Support - Rk Institution",
+  description: "Get help and support for your learning journey at Rk Institution.",
 }
 
 const supportCategories = [

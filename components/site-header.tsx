@@ -12,6 +12,7 @@ import { UserActions } from "@/components/header/user-actions"
 
 export function SiteHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   // Handle escape key to close mobile menu
   useEffect(() => {
@@ -24,11 +25,20 @@ export function SiteHeader() {
     return () => document.removeEventListener('keydown', handleEscape)
   }, [])
 
+  // Sticky/adaptive header on scroll
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 10)
+    }
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <header 
+    <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-        "transition-all duration-200"
+        "header-container z-50 w-full top-0 left-0 sticky transition-all duration-300",
+        scrolled ? "bg-white/90 shadow-xl backdrop-blur dark:bg-gray-900/90" : "bg-transparent shadow-none"
       )}
       role="banner"
     >

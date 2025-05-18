@@ -36,8 +36,53 @@ export function MobileNavigation({ isOpen, onClose }: MobileNavigationProps) {
         </SheetHeader>
         <ScrollArea className="my-4 h-[calc(100vh-8rem)] pb-10 pl-6">
           <div className="flex flex-col space-y-3">
-            {navigationItems.map((item) => 
-              item.children ? (
+            {navigationItems.map((item: any) =>
+              item.megaMenu ? (
+                <div key={item.title} className="flex flex-col space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground flex items-center mb-1">
+                    <item.icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                    {item.title}
+                  </div>
+                  {/* Featured Programs */}
+                  <div className="ml-4">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase mb-1">Featured Programs</div>
+                    <div className="flex flex-col gap-2 mb-2">
+                      {item.megaMenu.featured.map((program: any, i: number) => (
+                        <Link key={i} href={program.href} className="flex items-center gap-3 rounded-lg p-2 hover:bg-accent/30 transition group" onClick={onClose}>
+                          <img src={program.image} alt={program.title} className="w-10 h-10 rounded object-cover border border-muted" />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-foreground group-hover:text-primary transition text-sm">{program.title}</span>
+                              <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">{program.badge}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{program.description}</div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                    {/* Categories */}
+                    <div className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-2">Categories</div>
+                    <div className="flex flex-col gap-1 mb-2">
+                      {item.megaMenu.categories.map((cat: any, i: number) => (
+                        <Link key={i} href={cat.href} className="block px-2 py-1 rounded hover:bg-accent/30 text-sm text-foreground hover:text-primary transition" onClick={onClose}>
+                          {cat.title}
+                        </Link>
+                      ))}
+                    </div>
+                    {/* Quick Links */}
+                    <div className="text-xs font-semibold text-muted-foreground uppercase mb-1 mt-2">Quick Links</div>
+                    <div className="flex flex-col gap-1">
+                      {item.megaMenu.quickLinks
+                        .filter((link: any) => !link.requiresAuth || session)
+                        .map((link: any, i: number) => (
+                          <Link key={i} href={link.requiresAuth && !session ? "/login" : link.href} className="block px-2 py-1 rounded hover:bg-accent/30 text-sm text-foreground hover:text-primary transition" onClick={onClose}>
+                            {link.title}
+                          </Link>
+                        ))}
+                    </div>
+                  </div>
+                </div>
+              ) : item.children ? (
                 <div key={item.title} className="flex flex-col space-y-3">
                   <div className="text-sm font-medium text-muted-foreground flex items-center">
                     <item.icon className="w-4 h-4 mr-2" aria-hidden="true" />
@@ -45,8 +90,8 @@ export function MobileNavigation({ isOpen, onClose }: MobileNavigationProps) {
                   </div>
                   <div className="ml-4 flex flex-col space-y-2">
                     {item.children
-                      .filter(child => !child.requiresAuth || session)
-                      .map((child) => (
+                      .filter((child: any) => !child.requiresAuth || session)
+                      .map((child: any) => (
                         <Link
                           key={child.title}
                           href={child.requiresAuth && !session ? "/login" : child.href}

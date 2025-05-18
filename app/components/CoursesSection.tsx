@@ -55,17 +55,30 @@ export const CoursesSection = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch(`/api/courses`)
-      .then(res => res.json())
-      .then(data => {
-        setCourses(data.courses || []);
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setError('Failed to load courses.');
-        setIsLoading(false);
-      });
+    let isMounted = true;
+    const fetchCourses = () => {
+      setIsLoading(true);
+      fetch(`/api/courses`)
+        .then(res => res.json())
+        .then(data => {
+          if (isMounted) {
+            setCourses(data.courses || []);
+            setIsLoading(false);
+          }
+        })
+        .catch(() => {
+          if (isMounted) {
+            setError('Failed to load courses.');
+            setIsLoading(false);
+          }
+        });
+    };
+    fetchCourses();
+    const interval = setInterval(fetchCourses, 60000); // Refetch every 60 seconds
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const filteredCourses = courses.filter((course: any) =>
@@ -115,7 +128,10 @@ export const CoursesSection = () => {
                   <h3 className="text-lg font-semibold mb-4">Filter by Category</h3>
                   <select
                     value={category}
-                    onChange={e => setCategory(e.target.value)}
+                    onChange={e => {
+                      setCategory(e.target.value);
+                      setFilterOpen(false);
+                    }}
                     className="w-full border rounded p-2"
                     aria-label="Select category"
                   >

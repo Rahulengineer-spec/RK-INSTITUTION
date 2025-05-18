@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
@@ -12,7 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-base font-normal text-foreground shadow-xs transition-colors placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-background',
+          'flex h-12 w-full rounded-lg border border-input bg-card px-4 py-3 text-base font-normal text-foreground shadow-md transition-all duration-200 placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 focus:ring-offset-background',
           className
         )}
         {...props}
@@ -30,7 +32,7 @@ export const InputWithVoiceSearch = React.forwardRef<HTMLInputElement, React.Inp
         <input
           ref={ref}
           className={cn(
-            'flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-base font-normal text-foreground shadow-xs transition-colors placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 focus:ring-offset-background',
+            'flex h-12 w-full rounded-lg border border-input bg-card px-4 py-3 text-base font-normal text-foreground shadow-md transition-all duration-200 placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 focus:ring-offset-background',
             className
           )}
           value={value}

@@ -1,3 +1,5 @@
+"use client"
+
 import { Metadata } from "next"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -30,18 +32,13 @@ import {
   ExternalLink
 } from "lucide-react"
 
-export const metadata: Metadata = {
-  title: "Terms of Service - EduTech Institute",
-  description: "Read our terms of service and user agreement for using EduTech Institute platform.",
-}
-
 const termsSections = [
   {
     id: "acceptance",
     icon: <CheckCircle2 className="h-5 w-5" />,
     title: "1. Acceptance of Terms",
     content: [
-      "By accessing and using the EduTech Institute platform (&quot;Platform&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, please do not use our Platform.",
+      "By accessing and using the Rk Institution platform (&quot;Platform&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, please do not use our Platform.",
       "We reserve the right to modify these terms at any time. Your continued use of the Platform after any changes indicates your acceptance of the modified terms.",
     ] as (string | string[])[],
     importance: "critical"
@@ -81,7 +78,7 @@ const termsSections = [
     icon: <Copyright className="h-5 w-5" />,
     title: "4. Intellectual Property",
     content: [
-      "All content on the Platform, including but not limited to text, graphics, logos, images, audio clips, digital downloads, and data compilations, is the property of EduTech Institute or its content suppliers and is protected by international copyright laws.",
+      "All content on the Platform, including but not limited to text, graphics, logos, images, audio clips, digital downloads, and data compilations, is the property of Rk Institution or its content suppliers and is protected by international copyright laws.",
       "You may not reproduce, distribute, modify, or create derivative works of our content without explicit permission.",
       "Your use of our Platform does not grant you any ownership rights to our intellectual property.",
       "Course materials are licensed, not sold, to you for personal, non-commercial use only",
@@ -140,7 +137,7 @@ const termsSections = [
     icon: <Scale className="h-5 w-5" />,
     title: "8. Limitation of Liability",
     content: [
-      "EduTech Institute shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the Platform.",
+      "Rk Institution shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use or inability to use the Platform.",
       "Our total liability for any claims related to our services is limited to the amount you paid for the specific course or service in question.",
       "We do not guarantee uninterrupted access to the Platform",
       "We are not responsible for third-party content or links",
@@ -346,7 +343,7 @@ export default function TermsPage() {
                             {paragraph.map((item: string, itemIndex: number) => (
                               <li key={itemIndex} className="text-muted-foreground">{item}</li>
                             ))}
-          </ul>
+                          </ul>
                         )
                       ))}
                     </div>
@@ -374,7 +371,7 @@ export default function TermsPage() {
                   <p className="text-sm text-muted-foreground">
                     I have read and agree to the terms of service
                   </p>
-        </div>
+                </div>
               </div>
               <Button className="w-full mt-4" disabled={!hasAccepted}>
                 Continue to Platform
@@ -401,7 +398,7 @@ export default function TermsPage() {
             </CardContent>
           </Card>
         </aside>
-        </div>
+      </div>
     </div>
   );
 }

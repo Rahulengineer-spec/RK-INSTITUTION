@@ -8,7 +8,7 @@ import { Container } from '@/components/ui/container';
 export default function BlogPage() {
   return (
     <>
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-gradient-to-br from-background via-banner to-background/80">
         {/* Hero Section - Server Component */}
         <ServerBlogHero />
 

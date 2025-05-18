@@ -28,7 +28,19 @@ export function validateMiddleware(config: ValidationConfig) {
 
         if (contentType?.includes('application/json')) {
           const text = await request.text();
-          body = JSON.parse(text);
+          try {
+            body = JSON.parse(text);
+          } catch (err) {
+            log.warn('Invalid JSON in request body', { error: err, path: request.nextUrl.pathname });
+            return NextResponse.json(
+              {
+                error: {
+                  message: 'Invalid JSON in request body',
+                },
+              },
+              { status: 400 }
+            );
+          }
         } else if (contentType?.includes('multipart/form-data')) {
           const formData = await request.formData();
           body = Object.fromEntries(formData);

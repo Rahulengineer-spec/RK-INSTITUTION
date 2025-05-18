@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import Joyride, { CallBackProps, Step } from 'react-joyride';
 

@@ -8,42 +8,10 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Navigation */}
-      <nav className="border-b">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="font-bold text-xl">
-            RK INSTITUTION
-          </Link>
-          <div className="flex items-center gap-8">
-            <Link href="/marketing#features" className="text-muted-foreground hover:text-foreground">
-              Features
-            </Link>
-            <Link href="/marketing#pricing" className="text-muted-foreground hover:text-foreground">
-              Pricing
-            </Link>
-            <Link href="/verify-certificate" className="text-muted-foreground hover:text-foreground">
-              Verify Certificate
-            </Link>
-            <Link href="/contact" className="text-muted-foreground hover:text-foreground">
-              Contact
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/auth/login">
-                <Button variant="ghost">Log in</Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button>Sign up</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <main className="flex-grow">
         {children}
       </main>
-
       {/* Footer */}
       <footer className="border-t py-12 mt-20">
         <div className="container mx-auto px-4">

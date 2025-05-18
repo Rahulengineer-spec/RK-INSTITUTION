@@ -10,7 +10,11 @@ const Dialog = DialogPrimitive.Root;
 
 const DialogTrigger = DialogPrimitive.Trigger;
 
-const DialogPortal = DialogPrimitive.Portal;
+const DialogPortal = ({ children }: { children: React.ReactNode }) => (
+  <DialogPrimitive.Portal>
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center">{children}</div>
+  </DialogPrimitive.Portal>
+);
 
 const DialogClose = DialogPrimitive.Close;
 
@@ -21,7 +25,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-[1000] bg-black/80  data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       className
     )}
     {...props}
@@ -32,7 +36,7 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 export interface DialogContentProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const DialogContent = React.forwardRef<HTMLDivElement, DialogContentProps>(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('bg-card shadow-xl rounded-xl p-6', className)} {...props} />
+  <div ref={ref} className={cn('bg-card shadow-xl rounded-xl p-6 z-[1001]', className)} {...props} />
 ));
 DialogContent.displayName = 'DialogContent';
 

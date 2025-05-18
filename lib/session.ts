@@ -74,7 +74,13 @@ export class SessionStore {
         return null;
       }
 
-      const session: Session = JSON.parse(data);
+      let session: Session;
+      try {
+        session = JSON.parse(data);
+      } catch (err) {
+        log.error(`Failed to parse session JSON: ${err instanceof Error ? err.message : String(err)} | data: ${data}`);
+        return null;
+      }
       
       // Update last accessed time
       session.lastAccessed = Date.now();

@@ -1,13 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
+// import { ThemeToggle } from "@/components/theme-toggle"
 import { Icons } from "@/components/icons"
 import { cn } from "@/lib/utils"
 
 export function UserActions() {
   return (
     <div className="flex items-center space-x-2">
-      <ThemeToggle />
+      {/* <ThemeToggle /> Removed */}
       <Button 
         variant="outline"
         size="sm"

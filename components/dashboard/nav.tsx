@@ -58,7 +58,7 @@ export function DashboardNav() {
 
   return (
     <ErrorBoundary>
-      <nav className="grid items-start gap-2" role="navigation" aria-label="Dashboard Navigation">
+      <nav className="glass p-4 grid items-start gap-4" role="navigation" aria-label="Dashboard Navigation">
         {items.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">No navigation items available.</div>
         ) : (
@@ -66,14 +66,18 @@ export function DashboardNav() {
             <Button
               key={item.href}
               variant={pathname === item.href ? "default" : "ghost"}
-              className="w-full justify-start"
+              className={
+                pathname === item.href
+                  ? "w-full justify-start bg-gradient-to-r from-primary to-accent text-white shadow-lg hover:scale-105"
+                  : "w-full justify-start text-muted-foreground hover:text-primary hover:bg-accent/10"
+              }
               asChild
               role="menuitem"
               aria-current={pathname === item.href ? 'page' : undefined}
               aria-label={item.title}
             >
               <Link href={item.href} tabIndex={0} aria-label={item.title} aria-current={pathname === item.href ? 'page' : undefined}>
-                <item.icon className="mr-2 h-4 w-4" aria-hidden="true" />
+                <item.icon className={pathname === item.href ? "mr-2 h-5 w-5 text-white" : "mr-2 h-5 w-5 text-primary"} aria-hidden="true" />
                 {item.title}
               </Link>
             </Button>
